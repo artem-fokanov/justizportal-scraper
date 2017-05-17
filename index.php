@@ -25,14 +25,19 @@ try {
     $sessionID = $parser->getSessionId();
 } catch (Exception $e) {
 }
-try {
-    if ($page <= $pages)
-        $html = $rq->sendListRequest($site.$queryString, ['page' => $page++, 'PHPSESSID' => $sessionID], $rq::REQUEST_GET);
 
-    $links = array_merge($links, $parser->html($html)->totalLinks());
+
+try {
+    while ($page < $pages) {
+        $html = $rq->sendListRequest($site.$queryString, ['page' => ++$page.'#Ergebnis', 'PHPSESSID' => $sessionID], $rq::REQUEST_GET);
+
+        $links = array_merge($links, $parser->html($html)->parseLinks());
+    }
+
 } catch (Exception $e) {
 
 }
+//unset($parser);
 
 $endTime = microtime(true);
 

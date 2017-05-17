@@ -18,7 +18,7 @@ class Parser {
     protected $sessionId;
 
     public function __construct($html) {
-        $this->html($html);
+        $this->page = \SimpleHtmlDom\str_get_html($html);
     }
 
     public function __destruct() {
@@ -26,7 +26,11 @@ class Parser {
     }
 
     public function html($html) {
+        $this->page->clear();
+        $this->resultBlock = null;
+
         $this->page = \SimpleHtmlDom\str_get_html($html);
+
         return $this;
     }
 
@@ -76,7 +80,6 @@ class Parser {
     }
 
     public function parseLinks() {
-        $sessionId = null;
         $links = [];
         foreach ($this->result()->find('li') as $item) {
             $text = $item->children(0)->plaintext;
