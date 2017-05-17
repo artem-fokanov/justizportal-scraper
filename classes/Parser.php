@@ -131,7 +131,9 @@ class Parser {
     }
 
     public function parseArticleAsText() {
-        return html_entity_decode($this->page->find('body', 0)->plaintext);
+        $str = html_entity_decode($this->page->find('body', 0)->plaintext);
+        $str = str_replace(array("\r\n", "\n", "\r"), ' ', $str);
+        return $str;
     }
 
     public function sessionIdFromLink($link) {
