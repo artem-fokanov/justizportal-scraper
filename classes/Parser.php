@@ -18,11 +18,16 @@ class Parser {
     protected $sessionId;
 
     public function __construct($html) {
-        $this->page = \SimpleHtmlDom\str_get_html($html);
+        $this->html($html);
     }
 
     public function __destruct() {
         $this->page->clear();
+    }
+
+    public function html($html) {
+        $this->page = \SimpleHtmlDom\str_get_html($html);
+        return $this;
     }
 
     /**
@@ -76,6 +81,7 @@ class Parser {
         foreach ($this->result()->find('li') as $item) {
             $text = $item->children(0)->plaintext;
             $link = $item->children(0)->attr['href'];
+            $this->sessionIdFromLink($link);
             $extractHref = str_replace('javascript:NeuFenster(\'', '', $link);
             // cut last 2 characters "')" from link;
             $links[] = substr($extractHref, 0, strlen($extractHref)-2);
@@ -85,7 +91,7 @@ class Parser {
 
     public function sessionIdFromLink($link) {
         if (is_null($this->sessionId)) {
-            preg_match('/&PHPSESSID=\s+(.*)&/', $link->attr['href'], $matches);
+            preg_match('/PHPSESSID=(\w+)/', $link, $matches);
             $this->sessionId = array_key_exists(1, $matches) ? $matches[1] : null;
         }
     }

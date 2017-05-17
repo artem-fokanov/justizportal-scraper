@@ -1,18 +1,42 @@
 <?php
+require_once 'classes' . DIRECTORY_SEPARATOR . 'Request.php';
+require_once 'classes' . DIRECTORY_SEPARATOR . 'Parser.php';
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$startTime = microtime(true);
+
+//REQUEST
+$site = 'https://www.insolvenzbekanntmachungen.de';
+$queryString = '/cgi-bin/bl_suche.pl';
+
+$rq = new Request();
+$page = 1;
+$html = $rq->sendListRequest($site.$queryString);
 
 
-//require __DIR__. DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+//PARSE
+$parser = new Parser($html);
+try {
+    $pages = $parser->totalPages();
+    $totalLinks = $parser->totalLinks();
+    $links = $parser->parseLinks();
+    $sessionID = $parser->getSessionId();
+} catch (Exception $e) {
+}
+try {
+    if ($page <= $pages)
+        $html = $rq->sendListRequest($site.$queryString, ['page' => $page++, 'PHPSESSID' => $sessionID], $rq::REQUEST_GET);
 
-$url = 'https://www.insolvenzbekanntmachungen.de/cgi-bin/bl_suche.pl';
-$post = 'Suchfunktion=uneingeschr&Absenden=Suche+starten&Bundesland=--+Alle+Bundesl%E4nder+--&Gericht=--+Alle+Insolvenzgerichte+--&Datum1=&Datum2=&Name=&Sitz=&Abteilungsnr=&Registerzeichen=--&Lfdnr=&Jahreszahl=--&Registerart=HRB&select_registergericht=&Registergericht=--+keine+Angabe+--&Registernummer=&Gegenstand=Sicherungsma%DFnahmen&matchesperpage=100&page=1&sortedby=Datum';
-$ch = curl_init($url);
-$curlOutput = fopen('curlPost.html', 'w');
-curl_setopt($ch, CURLOPT_FILE, $curlOutput);
-curl_setopt($ch, CURLOPT_HEADER, 1); // add headers to get session id from cookie
-//curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // output to file
+    $links = array_merge($links, $parser->html($html)->totalLinks());
+} catch (Exception $e) {
 
-curl_setopt($ch, CURLOPT_POSTFIELDS, $post); // attach post data to request
+}
 
-$response = curl_exec($ch);
-curl_close($ch);
-fclose($curlOutput);
+$endTime = microtime(true);
+
+echo ($endTime - $startTime), ' seconds';
+
+echo '<br/>';
+print_r($links);
