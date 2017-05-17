@@ -14,7 +14,7 @@ $queryString = '/cgi-bin/bl_suche.pl';
 
 $rq = new Request();
 $page = 1;
-$html = $rq->sendListRequest($site.$queryString);
+$html = $rq->send($site.$queryString);
 
 
 //PARSE
@@ -26,7 +26,7 @@ try {
     $sessionID = $parser->getSessionId();
 
     while ($page < $pages) {
-        $html = $rq->sendListRequest($site . $queryString, ['page' => ++$page . '#Ergebnis', 'PHPSESSID' => $sessionID], $rq::REQUEST_GET);
+        $html = $rq->send($site . $queryString, ['page' => ++$page . '#Ergebnis', 'PHPSESSID' => $sessionID], $rq::REQUEST_GET);
 
         $links = array_merge($links, $parser->html($html)->parseLinks());
     }
@@ -34,27 +34,27 @@ try {
 } catch (Exception $e) {
 
 }
-
-unset($parser, $rq);
+unset ($html);
+//unset($parser, $rq);
 
 //STORE KEYS
+$fp = fopen('db/data.csv', 'w');
+
+fputcsv($fp, ['ID', 'ENTITY', 'COURT', 'PLAINTEXT']);
 try {
     $db = new Database();
     $db->beginTransaction();
     foreach ($links as $link => $data) {
-        $db->exec("INSERT INTO article(id, entity, court) VALUES(\"{$data[1]}\", \"{$data[0]}\", \"{$data[2]}\");");
+        $articleHtml = $rq->send($site.$link, null);
+//        $text = trim($parser->html($articleHtml)->parseArticleAsText());
+        $text = '';
+        fputcsv($fp, [$data[1], $data[0], $data[2], $text]);
+        $db->exec("INSERT INTO article('id', 'entity', 'court', 'plaintext') VALUES('{$data[1]}', '{$data[0]}', '{$data[2]}', '$text');");
+        $db->exec("INSERT INTO link('article_id', 'link') VALUES ('{$data[1]}', '$link');");
     }
     $db->commit();
 } catch (Exception $e) {
     $db->rollBack();
-}
-
-//SAVE CSV
-$fp = fopen('file.csv', 'w');
-
-fputcsv($fp, ['ID', 'ENTITY', 'COURT']);
-foreach ($links as $fields) {
-    fputcsv($fp, $fields);
 }
 
 fclose($fp);

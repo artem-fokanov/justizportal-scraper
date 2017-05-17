@@ -18,4 +18,9 @@ class SyntaxParser {
         $result = substr($pos, 0, strspn($pos, $int));
         return intval($result);
     }
+
+    public static function parseAddress($entity, $str) {
+        $array = explode(',', $entity);
+        return $array;
+    }
 }

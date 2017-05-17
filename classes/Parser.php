@@ -16,6 +16,10 @@ class Parser {
      */
     protected $resultBlock;
 
+    /**
+     *
+     * @var: strores PHPSESSID for further search
+     */
     protected $sessionId;
 
     public function __construct($html) {
@@ -26,6 +30,12 @@ class Parser {
         $this->page->clear();
     }
 
+    /**
+     * Build DOM tree from string
+     *
+     * @param $html
+     * @return $this
+     */
     public function html($html) {
         $this->clear();
 
@@ -40,6 +50,7 @@ class Parser {
     }
 
     /**
+     * Return result Node with elements
      *
      * @return mixed
      */
@@ -54,6 +65,8 @@ class Parser {
     }
 
     /**
+     * Total amount of article provided by search query
+     *
      * @return mixed
      */
     public function totalLinks() {
@@ -66,6 +79,8 @@ class Parser {
     }
 
     /**
+     * Total amount of pages
+     *
      * @return int
      */
     public function totalPages() {
@@ -85,6 +100,18 @@ class Parser {
         return $lastPage;
     }
 
+    /**
+     * Parsing and extracting data from string.
+     *
+     * Output format stores in 2-level tree
+     * links:
+     *      link_href:
+     *          ID
+     *          Entity
+     *          Lawyer
+     *
+     * @return array
+     */
     public function parseLinks() {
         $links = [];
         foreach ($this->result()->find('li') as $item) {
@@ -101,6 +128,10 @@ class Parser {
             $links[$extractHref] = $text;
         }
         return $links;
+    }
+
+    public function parseArticleAsText() {
+        return $this->page->find('body', 0)->plaintext;
     }
 
     public function sessionIdFromLink($link) {
