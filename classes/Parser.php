@@ -116,7 +116,7 @@ class Parser {
         $links = [];
         foreach ($this->result()->find('li') as $item) {
             $text = SyntaxParser::parseDataFromResultList($item->children(0)->children(0)->plaintext); // separate entity & id & court from plaintext
-            array_shift($text);
+//            array_shift($text);
 
             $link = $item->children(0)->attr['href'];
 
@@ -131,8 +131,7 @@ class Parser {
     }
 
     public function parseArticleAsText() {
-        //return $this->page->find('body', 0)->plaintext;
-        return iconv('ISO-8859-1', 'UTF-8', $this->page->find('body', 0)->plaintext);
+        return html_entity_decode($this->page->find('body', 0)->plaintext);
     }
 
     public function sessionIdFromLink($link) {
