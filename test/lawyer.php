@@ -7,6 +7,7 @@ $db = new Database();
 $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
 ?>
 <table>
+    <link rel="stylesheet" href="table.css"/>
     <thead>
     <tr>
         <th>Lawyer</th>
@@ -20,6 +21,7 @@ $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
     <tr>
         <td><?=$a?></td>
         <td><?=$item['plaintext']?></td>
+<!--        --><?//=$item['plaintext']?><!--<br/><br/><br/>-->
     </tr>
     <?php endforeach; ?>
 

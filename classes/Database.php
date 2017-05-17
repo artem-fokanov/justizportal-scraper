@@ -20,7 +20,7 @@ class Database extends \PDO {
             CREATE TABLE IF NOT EXISTS article (
               --'id' text primary key,
               'id' text,
-              'entity' text,
+              'entity_address' text,
               'court' text,
               'lawyer' text,
               'is_temporarily' boolean,
@@ -32,6 +32,7 @@ SQL
             CREATE TABLE IF NOT EXISTS link (
               --'article_id' text primary key,
               'article_id' text,
+              'entity' text,
               'link' text
             );
 SQL

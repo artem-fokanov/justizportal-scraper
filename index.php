@@ -40,7 +40,7 @@ unset ($html);
 //STORE KEYS
 $fp = fopen('db/data.csv', 'w');
 
-fputcsv($fp, ['ID', 'ENTITY', 'COURT', 'PLAINTEXT']);
+fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
 try {
     $db = new Database();
     $db->beginTransaction();
@@ -48,14 +48,27 @@ try {
         $articleHtml = $rq->send($site.$link, null);
 
         $text = trim($parser->html($articleHtml)->parseArticleAsText());
-        $data = array_merge($data, ['plaintext' => $text]);
 
-        $address = SyntaxParser::parseAddress($data['entity'], $data['entity']);
+        $address = SyntaxParser::parseAddress($data['entity'], $text);
 
-        fputcsv($fp, $data);
+        $court = SyntaxParser::parseCourt($data['court'], $text);
 
-        $db->exec("INSERT INTO article('id', 'entity', 'court', 'plaintext') VALUES('{$data['id']}', '{$data['entity']}', '{$data['court']}', '{$data['entity']}');");
-//        $db->exec("INSERT INTO link('article_id', 'link') VALUES ('{$data[1]}', '$link');");
+        $lawyer = SyntaxParser::parseLawyer($text);
+
+        $temporarity = SyntaxParser::checkTemproratity($text);
+
+        $data = array_merge($data, [
+            'plaintext' => $text,
+            'entity_address' => $address,
+            'court' => $court,
+            'lawyer' => $lawyer,
+            'is_temporarily' => $temporarity,
+        ]);
+
+        fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
+
+        $db->exec("INSERT INTO article('id', 'entity_address', 'court', 'lawyer', 'is_temporarily', 'plaintext') VALUES('{$data['id']}', '{$data['entity_address']}', '{$data['court']}', '{$data['lawyer']}', '{$data['is_temporarily']}', '{$data['plaintext']}');");
+        $db->exec("INSERT INTO link('article_id', 'entity', 'link') VALUES ('{$data['id']}', '{$data['entity']}', '$link');");
     }
     $db->commit();
 } catch (Exception $e) {

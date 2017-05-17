@@ -37,10 +37,6 @@ class SyntaxParser {
     }
 
     public static function parseCourt($court, $plaintext) {
-//        explode(',', $court);
-//        $firstCourtWord = substr($court, 0, strpos($court, ' '));
-//        $lastEntityWord = trim(substr($entity, strrpos($entity, ',')+1, strlen($entity)));
-
         $search = '(AG '.$court.')';
         $courtStart = strpos($plaintext, $search);
 
@@ -53,8 +49,39 @@ class SyntaxParser {
     }
 
     public static function parseLawyer($plaintext) {
-        $lawyerOffset = strpos($plaintext, 'Insolvenzverwalter');
-        return 1;
+        $lawyer = null;
+
+        preg_match('/Insolvenzverwalter.*Rechtsanwalt(.*)Verfügungen/U', $plaintext, $matches);
+        if (array_key_exists(1, $matches))
+            return trim($matches[1]);
+
+        $searchTip1 = 'Insolvenzverwalter';
+        $liquidatorOffset = stripos($plaintext, $searchTip1);
+
+        if ($liquidatorOffset !== false) {
+
+            $searchTip2 = 'Rechtsanwalt';
+            $lawyerStartOffset = strpos($plaintext, $searchTip2, $liquidatorOffset);
+
+            if ($lawyerStartOffset !== false) {
+                $lawyerStartOffset += strlen($searchTip2);
+                $lawyerStopOffset = strpos($plaintext, '. ', $lawyerStartOffset + 10);
+            } else {
+                $lawyerStartOffset = $liquidatorOffset + strlen($searchTip1);
+            }
+
+            $searchTip3 = 'Verfügungen';
+            $injunctionsOffset = strpos($plaintext, $searchTip3, $liquidatorOffset);
+
+            if ($injunctionsOffset !== false) {
+                $lawyerStopOffset = $injunctionsOffset;
+            }
+
+            if (isset($lawyerStartOffset, $lawyerStopOffset) && $lawyerStartOffset !== false && $lawyerStopOffset !== false)
+                $lawyer = trim(substr($plaintext, $lawyerStartOffset, $lawyerStopOffset-$lawyerStartOffset));
+        }
+
+        return $lawyer;
     }
 
     public static function checkTemproratity($plaintext) {
