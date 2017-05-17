@@ -1,7 +1,7 @@
 <?php
 
-require_once 'classes' . DIRECTORY_SEPARATOR . 'SyntaxParser.php';
-require_once 'classes' . DIRECTORY_SEPARATOR . 'Database.php';
+require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'SyntaxParser.php';
+require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Database.php';
 
 $db = new Database();
 $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
@@ -23,8 +23,6 @@ $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
         <td><?=$item['plaintext']?></td>
     </tr>
     <?php endforeach; ?>
-
-
 
     </tbody>
 </table>
