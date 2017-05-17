@@ -16,6 +16,16 @@ class Database extends \PDO {
     }
 
     public function createTables() {
-        $this->query('CREATE TABLE IF NOT EXISTS article (id,entity-address,court,lawyer,is_temporarily,plaintext);');
+        $this->query(<<<SQL
+            CREATE TABLE IF NOT EXISTS article (
+              id text primary key,
+              entity text,
+              court text,
+              lawyer text,
+              is_temporarily boolean,
+              plaintext text
+            );
+SQL
+        );
     }
 }

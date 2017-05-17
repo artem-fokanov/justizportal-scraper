@@ -2,6 +2,7 @@
 
 // Load SimpleHTMLDom
 require_once dirname(dirname(__FILE__)). DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'SyntaxParser.php';
 
 class Parser {
 
@@ -54,7 +55,7 @@ class Parser {
     public function totalLinks() {
         $resultBlock = $this->result();
 
-        $totalLinks = $resultBlock->find('p[align=center]', 0)->plaintext;
+        $totalLinks = SyntaxParser::parseResultSum($resultBlock->find('p[align=center]', 0)->plaintext);
 
         return $totalLinks;
     }
@@ -82,11 +83,14 @@ class Parser {
     public function parseLinks() {
         $links = [];
         foreach ($this->result()->find('li') as $item) {
-            $text = $item->children(0)->plaintext;
+            $text = SyntaxParser::parseDataFromResultList($item->children(0)->children(0)->plaintext); // separate entity & id & court from plaintext
+
             $link = $item->children(0)->attr['href'];
-            $this->sessionIdFromLink($link);
+
+            $this->sessionIdFromLink($link); // get  session id for further search results
+
+            // extracting link;
             $extractHref = str_replace('javascript:NeuFenster(\'', '', $link);
-            // cut last 2 characters "')" from link;
             $links[] = substr($extractHref, 0, strlen($extractHref)-2);
         }
         return $links;
