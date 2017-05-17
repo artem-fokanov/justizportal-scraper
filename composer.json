@@ -1,0 +1,13 @@
+{
+    "name": "artem-fokanov/justizportal-scraper",
+    "type": "project",
+    "require": {
+        "mgargano/simplehtmldom": "^1.5"
+    },
+    "authors": [
+        {
+            "name": "Artem Fokanov",
+            "email": "artem.fokanov@gmail.com"
+        }
+    ]
+}
