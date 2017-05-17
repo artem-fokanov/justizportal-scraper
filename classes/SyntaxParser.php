@@ -20,7 +20,14 @@ class SyntaxParser {
     }
 
     public static function parseAddress($entity, $str) {
-        $array = explode(',', $entity);
-        return $array;
+        $firstEntityWord = substr($entity, 0, strpos($entity, ' '));
+        $lastEntityWord = trim(substr($entity, strrpos($entity, ',')+1, strlen($entity)));
+
+        $addressStart = strpos($str, $firstEntityWord);
+        $addressStop = strpos($str, $lastEntityWord, $addressStart) + strlen($lastEntityWord);
+
+        $address = substr($str, $addressStart, $addressStop-$addressStart);
+
+        return $address;
     }
 }
