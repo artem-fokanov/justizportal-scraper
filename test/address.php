@@ -10,22 +10,19 @@ $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
 <table>
     <thead>
     <tr>
-        <th>Entity</th>
-        <th>Address</th>
+        <th>Entity_Address</th>
         <th>Plaintext</th>
     </tr>
     </thead>
     <tbody>
 
     <?php foreach ($query as $item) :
-        $a = SyntaxParser::parseAddress($item['entity'], $item['plaintext']);?>
+//        $a = SyntaxParser::parseAddress($item['entity'], $item['plaintext']);?>
     <tr>
-        <td><?=$item['entity']?></td>
-        <td><?=$a?></td>
+        <td><?=$item['entity_address']?></td>
         <td><?=$item['plaintext']?></td>
     </tr>
     <?php endforeach; ?>
 
     </tbody>
 </table>
-$c = 1;

@@ -26,4 +26,3 @@ $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
 
     </tbody>
 </table>
-$c = 1;
