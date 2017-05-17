@@ -46,19 +46,23 @@ try {
     $db->beginTransaction();
     foreach ($links as $link => $data) {
         $articleHtml = $rq->send($site.$link, null);
+
         $text = trim($parser->html($articleHtml)->parseArticleAsText());
-//        $text = '';
-        $address = SyntaxParser::parseAddress($data[0], $text);
-        fputcsv($fp, [$data[1], $data[0], $data[2], $text]);
-        $db->exec("INSERT INTO article('id', 'entity', 'court', 'plaintext') VALUES('{$data[1]}', '{$data[0]}', '{$data[2]}', '$text');");
-        $db->exec("INSERT INTO link('article_id', 'link') VALUES ('{$data[1]}', '$link');");
+        $data = array_merge($data, ['plaintext' => $text]);
+
+        $address = SyntaxParser::parseAddress($data['entity'], $data['entity']);
+
+        fputcsv($fp, $data);
+
+        $db->exec("INSERT INTO article('id', 'entity', 'court', 'plaintext') VALUES('{$data['id']}', '{$data['entity']}', '{$data['court']}', '{$data['entity']}');");
+//        $db->exec("INSERT INTO link('article_id', 'link') VALUES ('{$data[1]}', '$link');");
     }
     $db->commit();
 } catch (Exception $e) {
     $db->rollBack();
 }
 
-$rq->close();
+//$rq->close();
 fclose($fp);
 
 $endTime = microtime(true);

@@ -9,7 +9,12 @@ class SyntaxParser {
 
     public static function parseDataFromResultList($str) {
         preg_match('/(.*),\s(\s?\w?\s?\d{0,4}\w?\s?IN\s\d{0,4}\/\d{0,2}\s?[a-zA-Z0-9-() ]{0,5}),\sRegistergericht (.*)/', $str, $matches);
-        return $matches;
+        $output = [
+            'id' => $matches[2],
+            'entity' => $matches[1],
+            'court' => $matches[3],
+        ];
+        return $output;
     }
 
     public static function parseResultSum($str) {
@@ -19,15 +24,19 @@ class SyntaxParser {
         return intval($result);
     }
 
-    public static function parseAddress($entity, $str) {
+    public static function parseAddress($entity, $plaintext) {
         $firstEntityWord = substr($entity, 0, strpos($entity, ' '));
         $lastEntityWord = trim(substr($entity, strrpos($entity, ',')+1, strlen($entity)));
 
-        $addressStart = strpos($str, $firstEntityWord);
-        $addressStop = strpos($str, $lastEntityWord, $addressStart) + strlen($lastEntityWord);
+        $addressStart = strpos($plaintext, $firstEntityWord);
+        $addressStop = strpos($plaintext, $lastEntityWord, $addressStart) + strlen($lastEntityWord);
 
-        $address = substr($str, $addressStart, $addressStop-$addressStart);
+        $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
 
         return $address;
+    }
+
+    public static function checkTemproratity($plaintext) {
+        return stripos($plaintext, 'vorläufig') !== false;
     }
 }
