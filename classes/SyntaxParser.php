@@ -36,7 +36,28 @@ class SyntaxParser {
         return $address;
     }
 
+    public static function parseCourt($court, $plaintext) {
+//        explode(',', $court);
+//        $firstCourtWord = substr($court, 0, strpos($court, ' '));
+//        $lastEntityWord = trim(substr($entity, strrpos($entity, ',')+1, strlen($entity)));
+
+        $search = '(AG '.$court.')';
+        $courtStart = strpos($plaintext, $search);
+
+        if ($courtStart !== false) {
+            $courtStop = strlen($search)-2;
+            $court = substr($plaintext, $courtStart+1, $courtStop);
+        }
+
+        return $court;
+    }
+
+    public static function parseLawyer($plaintext) {
+        $lawyerOffset = strpos($plaintext, 'Insolvenzverwalter');
+        return 1;
+    }
+
     public static function checkTemproratity($plaintext) {
-        return stripos($plaintext, 'vorläufig') !== false;
+        return intval(stripos($plaintext, 'vorläufig') !== false);
     }
 }
