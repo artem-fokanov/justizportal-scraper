@@ -7,8 +7,8 @@ span.mark::before {
     background: black;
     font-style: normal;
 }
-span.id::before {  content: "1)@id ";  }
-span.address::before {  content: "2)@entity & address ";  }
-span.court::before {  content: "3)@court ";  }
-span.lawyer::before {  content: "4)@lawyer ";  }
+span.id::before {  content: "1) id ";  }
+span.address::before {  content: "2) entity & address ";  }
+span.court::before {  content: "3) court ";  }
+span.lawyer::before {  content: "4) lawyer ";  }
 span.temporarily::before {  content: "5) word exist "; }
