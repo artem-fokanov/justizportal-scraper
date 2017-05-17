@@ -44,10 +44,7 @@ class Request {
             $link = $link.'?'.$params;
         }
 
-        if (is_null($this->descriptor)) {
-            $this->descriptor = curl_init();
-        }
-        $ch = $this->descriptor;
+        $ch = $this->open();
 
         curl_setopt($ch, CURLOPT_URL, $link);
 
@@ -58,9 +55,19 @@ class Request {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // output to file
 
         $response = curl_exec($ch);
-//        curl_close($ch); // reuse handler eachtime
 
         return $response;
+    }
+
+    public function open() {
+        if (is_null($this->descriptor)){
+            $this->descriptor = curl_init();
+        }
+        return $this->descriptor;
+    }
+
+    public function close() {
+        curl_close($this->descriptor);
     }
 
     public function processParams($params = []) {
