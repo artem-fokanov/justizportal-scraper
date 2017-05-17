@@ -46,8 +46,9 @@ try {
     $db->beginTransaction();
     foreach ($links as $link => $data) {
         $articleHtml = $rq->send($site.$link, null);
-//        $text = trim($parser->html($articleHtml)->parseArticleAsText());
-        $text = '';
+        $text = trim($parser->html($articleHtml)->parseArticleAsText());
+//        $text = '';
+        $address = SyntaxParser::parseAddress($data[0], $text);
         fputcsv($fp, [$data[1], $data[0], $data[2], $text]);
         $db->exec("INSERT INTO article('id', 'entity', 'court', 'plaintext') VALUES('{$data[1]}', '{$data[0]}', '{$data[2]}', '$text');");
         $db->exec("INSERT INTO link('article_id', 'link') VALUES ('{$data[1]}', '$link');");
@@ -57,6 +58,7 @@ try {
     $db->rollBack();
 }
 
+$rq->close();
 fclose($fp);
 
 $endTime = microtime(true);
