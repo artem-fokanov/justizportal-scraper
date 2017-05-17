@@ -131,7 +131,8 @@ class Parser {
     }
 
     public function parseArticleAsText() {
-        return $this->page->find('body', 0)->plaintext;
+        //return $this->page->find('body', 0)->plaintext;
+        return iconv('ISO-8859-1', 'UTF-8', $this->page->find('body', 0)->plaintext);
     }
 
     public function sessionIdFromLink($link) {
