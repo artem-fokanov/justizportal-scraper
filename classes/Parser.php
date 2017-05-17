@@ -27,12 +27,16 @@ class Parser {
     }
 
     public function html($html) {
-        $this->page->clear();
-        $this->resultBlock = null;
+        $this->clear();
 
         $this->page = \SimpleHtmlDom\str_get_html($html);
 
         return $this;
+    }
+
+    protected function clear() {
+        $this->page->clear();
+        $this->resultBlock = null;
     }
 
     /**
@@ -55,7 +59,8 @@ class Parser {
     public function totalLinks() {
         $resultBlock = $this->result();
 
-        $totalLinks = SyntaxParser::parseResultSum($resultBlock->find('p[align=center]', 0)->plaintext);
+        $totalLinks = $resultBlock->find('p[align=center]', 0)->plaintext;
+        $totalLinks = SyntaxParser::parseResultSum($totalLinks);
 
         return $totalLinks;
     }
@@ -84,6 +89,7 @@ class Parser {
         $links = [];
         foreach ($this->result()->find('li') as $item) {
             $text = SyntaxParser::parseDataFromResultList($item->children(0)->children(0)->plaintext); // separate entity & id & court from plaintext
+            array_shift($text);
 
             $link = $item->children(0)->attr['href'];
 
@@ -91,7 +97,8 @@ class Parser {
 
             // extracting link;
             $extractHref = str_replace('javascript:NeuFenster(\'', '', $link);
-            $links[] = substr($extractHref, 0, strlen($extractHref)-2);
+            $extractHref = substr($extractHref, 0, strlen($extractHref)-2);
+            $links[$extractHref] = $text;
         }
         return $links;
     }

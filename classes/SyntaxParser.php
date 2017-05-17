@@ -13,6 +13,9 @@ class SyntaxParser {
     }
 
     public static function parseResultSum($str) {
-        return substr($str, 0, strspn($str, "0123456789"));
+        $int = '0123456789';
+        $pos = strpbrk($str, $int);
+        $result = substr($pos, 0, strspn($pos, $int));
+        return intval($result);
     }
 }
