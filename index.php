@@ -35,7 +35,6 @@ try {
 
 }
 unset ($html);
-//unset($parser, $rq);
 
 //STORE KEYS
 $fp = fopen('db/data.csv', 'w');
@@ -66,9 +65,12 @@ try {
         ]);
 
         fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
-
-        $db->exec("INSERT INTO article('id', 'entity_address', 'court', 'lawyer', 'is_temporarily', 'plaintext') VALUES('{$data['id']}', '{$data['entity_address']}', '{$data['court']}', '{$data['lawyer']}', '{$data['is_temporarily']}', '{$data['plaintext']}');");
-        $db->exec("INSERT INTO link('article_id', 'entity', 'link') VALUES ('{$data['id']}', '{$data['entity']}', '$link');");
+        echo "-pasted CSV- ";
+        $db->insertArticle($data);
+        echo "-pasted DB- ";
+        $db->insertLink(array_merge($data, ['link' => $link]));
+        echo "-ID \"{$data['id']}\"";
+        echo (array_key_exists('DOCUMENT_ROOT', $_SERVER)) ? nl2br(PHP_EOL) : PHP_EOL;
     }
     $db->commit();
 } catch (Exception $e) {

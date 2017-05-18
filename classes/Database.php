@@ -2,6 +2,21 @@
 
 class Database extends \PDO {
 
+    private $article = [
+        'id',
+        'entity_address',
+        'court',
+        'lawyer',
+        'is_temporarily',
+        'plaintext'
+    ];
+
+    private $links = [
+        'id',
+        'entity',
+        'link'
+    ];
+
     public function __construct() {
         $dirname = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'db';
         if (!is_dir($dirname))
@@ -37,5 +52,41 @@ SQL
             );
 SQL
         );
+    }
+
+    public function insertArticle($data) {
+        $statement = $this->prepare(<<<SQL
+            INSERT INTO article
+            (id, entity_address, court, lawyer, is_temporarily, plaintext)
+            VALUES
+            (:id, :entity_address, :court, :lawyer, :is_temporarily, :plaintext);
+SQL
+        );
+        foreach ($data as $column => $value) {
+            if (in_array($column, $this->article)) {
+                $statement->bindValue(':'.$column, $value);
+            }
+        }
+        $result = $statement->execute();
+
+        return intval($result);
+    }
+
+    public function insertLink($data) {
+        $statement = $this->prepare(<<<SQL
+            INSERT INTO link
+            (id, entity_address, court, lawyer, is_temporarily, plaintext)
+            VALUES
+            (:id, :entity_address, :court, :lawyer, :is_temporarily, :plaintext);
+SQL
+        );
+        foreach ($data as $column => $value) {
+            if (in_array($column, $this->article)) {
+                $statement->bindValue(':'.$column, $value);
+            }
+        }
+        $result = $statement->execute();
+
+        return intval($result);
     }
 }
