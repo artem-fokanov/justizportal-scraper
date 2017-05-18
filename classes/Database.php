@@ -12,9 +12,10 @@ class Database extends \PDO {
     ];
 
     private $links = [
-        'id',
+        'artice_id',
+        'article_date',
         'entity',
-        'link'
+        'link',
     ];
 
     public function __construct() {
@@ -22,7 +23,7 @@ class Database extends \PDO {
         if (!is_dir($dirname))
             mkdir($dirname);
 
-        $file = $dirname.'/mydb.sq3';
+        $file = $dirname.'/data.sq3';
         $dsn = 'sqlite:'.$file;
 
         parent::__construct($dsn);
@@ -47,6 +48,7 @@ SQL
             CREATE TABLE IF NOT EXISTS link (
               --'article_id' text primary key,
               'article_id' text,
+              'article_date' text,
               'entity' text,
               'link' text
             );
@@ -75,9 +77,9 @@ SQL
     public function insertLink($data) {
         $statement = $this->prepare(<<<SQL
             INSERT INTO link
-            (id, entity_address, court, lawyer, is_temporarily, plaintext)
+            (article_id, article_date, entity, link)
             VALUES
-            (:id, :entity_address, :court, :lawyer, :is_temporarily, :plaintext);
+            (:article_id, :article_date, :entity, :link);
 SQL
         );
         foreach ($data as $column => $value) {
