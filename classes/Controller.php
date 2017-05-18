@@ -10,6 +10,7 @@ class Controller {
         //REQUEST
         $queryString = '/cgi-bin/bl_suche.pl';
         $rq = new Request();
+        $rq->open();
         $page = 1;
         $html = $rq->send($queryString,
             [
@@ -108,6 +109,7 @@ class Controller {
         }
 
         fclose($fp);
+        $rq->close();
 
         $endTime = microtime(true);
 
