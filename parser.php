@@ -1,7 +1,5 @@
 <?php
 require_once 'autoload.php';
-$controller = new \Controller();
-$result = $controller->dashboard();
 ?>
 <html lang="en">
 <head>
@@ -23,7 +21,6 @@ $result = $controller->dashboard();
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
-
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                 <span class="sr-only">Toggle navigation</span>
@@ -33,7 +30,6 @@ $result = $controller->dashboard();
             </button>
             <a class="navbar-brand" href="#">Greetings</a>
         </div>
-
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/index.php">Dashboard</a></li>
@@ -45,39 +41,25 @@ $result = $controller->dashboard();
 
 <div class="container-fluid">
     <div class="row">
-
         <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li class="active"><a href="/index.php">Overview <span class="sr-only">(current)</span></a></li>
-                <li><a href="/index.php?param=entity_address">Addresses</a></li>
-                <li><a href="/index.php?param=lawyer">Lawyers</a></li>
-                <li><a href="/index.php?param=court">Courts</a></li>
-                <li><a href="/index.php?param=is_temporarily">Temporarily</a></li>
-            </ul>
+            <form class="form-inline" action="parser.php" method="get">
+                <input type="hidden" name="parse" value="1">
+                <label for="select">Registerart</label>
+                <select name="Registerart" id="select" class="form-control">
+                    <option>HRB</option>
+                    <option>HRA</option>
+                </select>
+                <button type="submit" class="btn btn-default">Scrap data</button>
+            </form>
         </div>
-
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <?php if (array_key_exists('parse', $_GET) && $_GET['parse'] == 1) : ?>
             <h1 class="page-header"><?=$result['title']?></h1>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <?php foreach ($result['columns'] as $th) : ?>
-                            <th><?=$th?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($result['rows'] as $row) : ?>
-                    <tr>
-                        <?php foreach ($row as $col) : ?>
-                        <td><?=$col?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+            <?php
+                $controller = new \Controller();
+                $controller->parser();
+//                include 'parser1.php';
+            endif; ?>
         </div>
     </div>
 </div>

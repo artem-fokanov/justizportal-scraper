@@ -116,16 +116,18 @@ class Parser {
         $links = [];
         foreach ($this->result()->find('li') as $item) {
             $text = SyntaxParser::parseDataFromResultList($item->children(0)->children(0)->plaintext); // separate entity & id & court from plaintext
-//            array_shift($text);
 
-            $link = $item->children(0)->attr['href'];
+            $date = trim($item->children(0)->nodes[0]->plaintext);
+            $text['date'] = $date;
 
-            $this->sessionIdFromLink($link); // get  session id for further search results
-
+            $link = $item->children(0)->href;
             // extracting link;
-            $extractHref = str_replace('javascript:NeuFenster(\'', '', $link);
-            $extractHref = substr($extractHref, 0, strlen($extractHref)-2);
-            $links[$extractHref] = $text;
+            $link = str_replace('javascript:NeuFenster(\'', '', $link);
+            $link = substr($link, 0, strlen($link)-2);
+            // extract session id for further search results
+            $link = $this->sessionIdFromLink($link);
+
+            $links[$link] = $text;
         }
         return $links;
     }
@@ -137,10 +139,13 @@ class Parser {
     }
 
     public function sessionIdFromLink($link) {
+        preg_match('/PHPSESSID=(\w+)&/', $link, $matches);
+
         if (is_null($this->sessionId)) {
-            preg_match('/PHPSESSID=(\w+)/', $link, $matches);
             $this->sessionId = array_key_exists(1, $matches) ? $matches[1] : null;
         }
+
+        return str_replace($matches[0], '', $link);
     }
 
     public function getSessionId(){

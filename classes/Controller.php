@@ -2,6 +2,106 @@
 
 class Controller {
 
+    public function parser() {
+        $startTime = microtime(true);
+
+        $registerant = (array_key_exists('Registerart', $_GET)) ? $_GET['Registerart'] : null;
+
+        //REQUEST
+        $queryString = '/cgi-bin/bl_suche.pl';
+        $rq = new Request();
+        $page = 1;
+        $html = $rq->send($queryString,
+            [
+                'Registerart' => $registerant
+            ]
+        );
+
+        //PARSE
+        $parser = new Parser($html);
+        try {
+            $pages = $parser->totalPages();
+            $totalLinks = $parser->totalLinks();
+            $links = $parser->parseLinks();
+            $sessionID = $parser->getSessionId();
+
+            while ($page < $pages) {
+                $html = $rq->send($queryString,
+                    [
+                        'Registerart' => $registerant,
+                        'page' => ++$page . '#Ergebnis',
+                        'PHPSESSID' => $sessionID
+                    ],
+                    $rq::REQUEST_GET);
+
+                $links = array_merge($links, $parser->html($html)->parseLinks());
+            }
+
+        } catch (Exception $e) {
+
+        }
+        unset ($html, $pages, $page, $queryString);
+
+        //STORE DATA
+        $fp = fopen('db/data.csv', 'w');
+        fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
+        try {
+            $db = new Database();
+            $db->beginTransaction();
+            foreach ($links as $link => $data) {
+                $articleHtml = $rq->send($link,
+                    http_build_query(['PHPSESSID' => $sessionID]),
+                    $rq::REQUEST_GET,
+                true
+                );
+
+                $text = trim($parser->html($articleHtml)->parseArticleAsText());
+
+                $address = SyntaxParser::parseAddress($data['entity'], $text);
+
+                $court = SyntaxParser::parseCourt($data['court'], $text);
+
+                $lawyer = SyntaxParser::parseLawyer($text);
+
+                $temporarity = SyntaxParser::checkTemproratity($text);
+
+                $data = array_merge($data, [
+                    'plaintext' => $text,
+                    'entity_address' => $address,
+                    'court' => $court,
+                    'lawyer' => $lawyer,
+                    'is_temporarily' => $temporarity,
+                ]);
+
+                $inserted = $db->insertInfo(array_merge($data, ['link' => $link]));
+
+                if ($inserted) {
+                    echo "-pasted Info- ";
+
+                    fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
+                    echo "-pasted CSV- ";
+
+                    $db->insertArticle($data);
+                    echo "-pasted Article- ";
+
+                    echo "-ID \"{$data['id']}\"";
+                    echo PHP_EOL;
+                }
+
+            }
+            $db->commit();
+        }
+        catch (Exception $e) {
+            $db->rollBack();
+        }
+
+        fclose($fp);
+
+        $endTime = microtime(true);
+
+        echo ($endTime - $startTime), ' seconds';
+    }
+
     public function dashboard() {
         $title = 'Overview';
         $columns = ['id', 'entity_address', 'court', 'lawyer', 'is_temporarily', 'plaintext'];

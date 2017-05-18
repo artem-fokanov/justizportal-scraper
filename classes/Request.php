@@ -4,6 +4,8 @@ class Request {
     const REQUEST_POST = 0;
     const REQUEST_GET = 1;
 
+    const REQUEST_SITE = 'https://www.insolvenzbekanntmachungen.de';
+
     protected $phpsessid;
 
     protected $descriptor;
@@ -29,22 +31,23 @@ class Request {
         'matchesperpage' => '100',
         'page' => '1',
         'sortedby' => 'Datum',
-//        'PHPSESSID' => ''
     ];
 
     protected $data = [];
 
-    public function send($link, $params = [], $method = self::REQUEST_POST) {
-        if (!is_null($params)) {
+    public function send($link, $params = [], $method = self::REQUEST_POST, $isRawParams = false) {
+        $link = self::REQUEST_SITE . $link;
+
+        if (!$isRawParams) {
             $params = $this->processParams($params);
             $params = http_build_query($params);
         }
 
         if ($method == self::REQUEST_GET) {
-            $link = $link.'?'.$params;
+            $glue = (strpos($link, '?') === false) ? '?' : '&';
+            $link = $link . $glue . $params;
         }
 
-//        $ch = $this->open();
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $link);
@@ -61,16 +64,16 @@ class Request {
         return $response;
     }
 
-    public function open() {
-        if (is_null($this->descriptor)){
-            $this->descriptor = curl_init();
-        }
-        return $this->descriptor;
-    }
-
-    public function close() {
-        curl_close($this->descriptor);
-    }
+//    public function open() {
+//        if (is_null($this->descriptor)){
+//            $this->descriptor = curl_init();
+//        }
+//        return $this->descriptor;
+//    }
+//
+//    public function close() {
+//        curl_close($this->descriptor);
+//    }
 
     public function processParams($params = []) {
         $output = $this->properties;

@@ -11,7 +11,7 @@ class Database extends \PDO {
         'plaintext'
     ];
 
-    private $links = [
+    private $info = [
         'artice_id',
         'article_date',
         'entity',
@@ -45,7 +45,7 @@ class Database extends \PDO {
 SQL
         );
         $this->query(<<<SQL
-            CREATE TABLE IF NOT EXISTS link (
+            CREATE TABLE IF NOT EXISTS info (
               --'article_id' text primary key,
               'article_id' text,
               'article_date' text,
@@ -74,16 +74,19 @@ SQL
         return intval($result);
     }
 
-    public function insertLink($data) {
+    public function insertInfo($data) {
         $statement = $this->prepare(<<<SQL
-            INSERT INTO link
+            INSERT INTO info
             (article_id, article_date, entity, link)
             VALUES
             (:article_id, :article_date, :entity, :link);
 SQL
         );
         foreach ($data as $column => $value) {
-            if (in_array($column, $this->article)) {
+            if ($column == 'id' || $column == 'date')
+                $column = 'article_' . $column;
+
+            if (in_array($column, $this->info)) {
                 $statement->bindValue(':'.$column, $value);
             }
         }
