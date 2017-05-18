@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: artem
- * Date: 17.05.2017
- * Time: 15:44
- */
+
 class SyntaxParser {
 
     /**
@@ -53,10 +48,13 @@ class SyntaxParser {
         $addressStart = strpos($plaintext, $firstEntityWord);
         $addressStop = strpos($plaintext, $lastEntityWord, $addressStart) + strlen($lastEntityWord);
 
+        $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
+
         if ($addressStart > $addressStop) {
             $address = $entity; // if smth went wrong in parse
-        } else {
-            $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
+        } elseif (strlen($entity) > strlen($address)) {
+            $addressStop2 = strpos($plaintext, $lastEntityWord, $addressStop) + strlen($lastEntityWord);
+            $address = substr($plaintext, $addressStart, $addressStop2-$addressStart);
         }
 
         return $address;
