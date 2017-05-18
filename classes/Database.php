@@ -95,4 +95,23 @@ SQL
 
         return intval($result);
     }
+
+    public function existsInfo($data) {
+        $statement = $this->prepare(<<<SQL
+            SELECT COUNT(*) FROM info WHERE
+            article_id = :article_id AND link = :link;
+SQL
+        );
+        foreach ($data as $column => $value) {
+            if ($column == 'id')
+                $column = 'article_' . $column;
+
+            if (in_array($column, ['article_id', 'link'])) {
+                $statement->bindValue(':'.$column, $value);
+            }
+        }
+        $statement->execute();
+        $result = $statement->fetchColumn();
+        return intval($result);
+    }
 }

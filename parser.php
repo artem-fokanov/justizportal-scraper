@@ -56,11 +56,12 @@ require_once 'autoload.php';
             <?php if (array_key_exists('parse', $_GET) && $_GET['parse'] == 1) : ?>
             <h1 class="page-header"><?=$result['title']?></h1>
             <?php
+                $registerant = (array_key_exists('Registerart', $_GET)) ? $_GET['Registerart'] : null;
                 $controller = new \Controller();
                 ob_start(function($buffer) {
                     return nl2br($buffer);
                 });
-                $controller->parser();
+                $controller->parser($registerant);
                 ob_end_flush();
             endif; ?>
         </div>

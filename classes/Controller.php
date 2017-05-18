@@ -2,10 +2,10 @@
 
 class Controller {
 
-    public function parser() {
+    public function parser($registerant) {
         $startTime = microtime(true);
 
-        $registerant = (array_key_exists('Registerart', $_GET)) ? $_GET['Registerart'] : null;
+//        $registerant = (array_key_exists('Registerart', $_GET)) ? $_GET['Registerart'] : null;
 
         //REQUEST
         $queryString = '/cgi-bin/bl_suche.pl';
@@ -50,48 +50,60 @@ class Controller {
 
             $iteration = 1;
             foreach ($links as $link => $data) {
-                $articleHtml = $rq->send($link,
-                    http_build_query(['PHPSESSID' => $sessionID]),
-                    $rq::REQUEST_GET,
-                true
-                );
+                $data = array_merge($data, ['link' => $link]);
 
-                $text = trim($parser->html($articleHtml)->parseArticleAsText());
+                echo sprintf("%'.04d insertion ", $iteration);
 
-                $address = SyntaxParser::parseAddress($data['entity'], $text);
+                $exists = $db->existsInfo($data);
+                if ($exists) {
+                    echo "-row exist. skipping-";
+                } else {
+                    $articleHtml = $rq->send($link,
+                        http_build_query(['PHPSESSID' => $sessionID]),
+                        $rq::REQUEST_GET,
+                        true
+                    );
 
-                $court = SyntaxParser::parseCourt($data['court'], $text);
+                    $text = $parser->html($articleHtml)->parseArticleAsText();
 
-                $lawyer = SyntaxParser::parseLawyer($text);
+                    $address = SyntaxParser::parseAddress($data['entity'], $text);
 
-                $temporarity = SyntaxParser::checkTemproratity($text);
+                    $court = SyntaxParser::parseCourt($data['court'], $text);
 
-                $data = array_merge($data, [
-                    'plaintext' => $text,
-                    'entity_address' => $address,
-                    'court' => $court,
-                    'lawyer' => $lawyer,
-                    'is_temporarily' => $temporarity,
-                ]);
+                    $lawyer = SyntaxParser::parseLawyer($text);
 
-                $db->beginTransaction();
-                $inserted = $db->insertInfo(array_merge($data, ['link' => $link]));
+                    $temporarity = SyntaxParser::checkTemproratity($text);
 
-                if ($inserted) {
-                    $iteration++;
-                    echo sprintf("%'.04d ", $iteration);
-                    echo "-inserted data to Info table- ";
+                    $data = array_merge($data, [
+                        'plaintext' => $text,
+                        'entity_address' => $address,
+                        'court' => $court,
+                        'lawyer' => $lawyer,
+                        'is_temporarily' => $temporarity,
+                    ]);
 
-                    $db->insertArticle($data);
-                    echo "-pasted data to Article table- ";
-                    $db->commit();
+                    $db->beginTransaction();
 
-                    fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
-                    echo "-pasted data in .csv- ";
+                    $inserted = $db->insertInfo($data);
 
-                    echo "-ID \"{$data['id']}\"";
-                    echo PHP_EOL;
+                    if ($inserted) {
+                        echo "-Info table- ";
+
+                        $db->insertArticle($data);
+                        echo "-Article table- ";
+                        $db->commit();
+
+                        fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
+                        echo "-data.csv- ";
+                    } else {
+                        echo "-cant insert. skipping-";
+                        $db->rollBack();
+                    }
                 }
+
+                echo "-ID \"{$data['id']}\"";
+                echo PHP_EOL;
+                $iteration++;
             }
 
         }
