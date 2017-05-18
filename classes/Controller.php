@@ -19,27 +19,23 @@ class Controller {
 
         //PARSE
         $parser = new Parser($html);
-        try {
-            $pages = $parser->totalPages();
-            echo "Total links detected: ", $parser->totalLinks(), PHP_EOL;
-            $links = $parser->parseLinks();
-            $sessionID = $parser->getSessionId();
+        $pages = $parser->totalPages();
+        echo "Total links detected: ", $parser->totalLinks(), PHP_EOL;
+        $links = $parser->parseLinks();
+        $sessionID = $parser->getSessionId();
 
-            while ($page < $pages) {
-                $html = $rq->send($queryString,
-                    [
-                        'Registerart' => $registerant,
-                        'page' => ++$page . '#Ergebnis',
-                        'PHPSESSID' => $sessionID
-                    ],
-                    $rq::REQUEST_GET);
+        while ($page < $pages) {
+            $html = $rq->send($queryString,
+                [
+                    'Registerart' => $registerant,
+                    'page' => ++$page . '#Ergebnis',
+                    'PHPSESSID' => $sessionID
+                ],
+                $rq::REQUEST_GET);
 
-                $links = array_merge($links, $parser->html($html)->parseLinks());
-            }
-
-        } catch (Exception $e) {
-
+            $links = array_merge($links, $parser->html($html)->parseLinks());
         }
+
         unset ($html, $pages, $page, $queryString);
 
         //STORE DATA
@@ -47,7 +43,7 @@ class Controller {
         fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
         try {
             $db = new Database();
-
+//            $db->beginTransaction();
             $iteration = 1;
             foreach ($links as $link => $data) {
                 $data = array_merge($data, ['link' => $link]);
@@ -105,7 +101,7 @@ class Controller {
                 echo PHP_EOL;
                 $iteration++;
             }
-
+//            $db->commit();
         }
         catch (Exception $e) {
             $db->rollBack();
@@ -115,7 +111,7 @@ class Controller {
 
         $endTime = microtime(true);
 
-        echo ($endTime - $startTime), ' seconds';
+        echo ($endTime - $startTime), ' seconds', PHP_EOL;
     }
 
     public function dashboard() {
