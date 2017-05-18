@@ -12,7 +12,7 @@ class Database extends \PDO {
     ];
 
     private $info = [
-        'artice_id',
+        'article_id',
         'article_date',
         'entity',
         'link',
@@ -50,7 +50,8 @@ SQL
               'article_id' text,
               'article_date' text,
               'entity' text,
-              'link' text
+              'link' text,
+              PRIMARY KEY (article_id, link) 
             );
 SQL
         );

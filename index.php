@@ -10,7 +10,7 @@ $result = $controller->dashboard();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Overview</title>
+    <title>Dashboard</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <!-- Optional theme -->
@@ -36,7 +36,7 @@ $result = $controller->dashboard();
 
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/index.php">Dashboard</a></li>
+                <li class="active"><a href="/index.php">Dashboard</a></li>
                 <li><a href="/parser.php">Parser</a></li>
             </ul>
         </div>
@@ -48,7 +48,7 @@ $result = $controller->dashboard();
 
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="/index.php">Overview <span class="sr-only">(current)</span></a></li>
+                <li><a href="/index.php">Overview <span class="sr-only">(current)</span></a></li>
                 <li><a href="/index.php?param=entity_address">Addresses</a></li>
                 <li><a href="/index.php?param=lawyer">Lawyers</a></li>
                 <li><a href="/index.php?param=court">Courts</a></li>

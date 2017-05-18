@@ -21,7 +21,7 @@ class Controller {
         $parser = new Parser($html);
         try {
             $pages = $parser->totalPages();
-            $totalLinks = $parser->totalLinks();
+            echo "Total links detected: ", $parser->totalLinks(), PHP_EOL;
             $links = $parser->parseLinks();
             $sessionID = $parser->getSessionId();
 
@@ -47,7 +47,8 @@ class Controller {
         fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
         try {
             $db = new Database();
-            $db->beginTransaction();
+
+            $iteration = 1;
             foreach ($links as $link => $data) {
                 $articleHtml = $rq->send($link,
                     http_build_query(['PHPSESSID' => $sessionID]),
@@ -73,23 +74,26 @@ class Controller {
                     'is_temporarily' => $temporarity,
                 ]);
 
+                $db->beginTransaction();
                 $inserted = $db->insertInfo(array_merge($data, ['link' => $link]));
 
                 if ($inserted) {
-                    echo "-pasted Info- ";
-
-                    fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
-                    echo "-pasted CSV- ";
+                    $iteration++;
+                    echo sprintf("%'.04d ", $iteration);
+                    echo "-inserted data to Info table- ";
 
                     $db->insertArticle($data);
-                    echo "-pasted Article- ";
+                    echo "-pasted data to Article table- ";
+                    $db->commit();
+
+                    fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
+                    echo "-pasted data in .csv- ";
 
                     echo "-ID \"{$data['id']}\"";
                     echo PHP_EOL;
                 }
-
             }
-            $db->commit();
+
         }
         catch (Exception $e) {
             $db->rollBack();

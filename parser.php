@@ -8,7 +8,7 @@ require_once 'autoload.php';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Overview</title>
+    <title>Parser</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <!-- Optional theme -->
@@ -33,7 +33,7 @@ require_once 'autoload.php';
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/index.php">Dashboard</a></li>
-                <li><a href="/parser.php">Parser</a></li>
+                <li class="active"><a href="/parser.php">Parser</a></li>
             </ul>
         </div>
     </div>
@@ -57,8 +57,11 @@ require_once 'autoload.php';
             <h1 class="page-header"><?=$result['title']?></h1>
             <?php
                 $controller = new \Controller();
+                ob_start(function($buffer) {
+                    return nl2br($buffer);
+                });
                 $controller->parser();
-//                include 'parser1.php';
+                ob_end_flush();
             endif; ?>
         </div>
     </div>

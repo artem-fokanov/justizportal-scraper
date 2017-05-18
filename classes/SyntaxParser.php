@@ -53,7 +53,11 @@ class SyntaxParser {
         $addressStart = strpos($plaintext, $firstEntityWord);
         $addressStop = strpos($plaintext, $lastEntityWord, $addressStart) + strlen($lastEntityWord);
 
-        $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
+        if ($addressStart > $addressStop) {
+            $address = $entity; // if smth went wrong in parse
+        } else {
+            $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
+        }
 
         return $address;
     }

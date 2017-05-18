@@ -2,7 +2,7 @@
 
 // Load SimpleHTMLDom
 require_once dirname(dirname(__FILE__)). DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'SyntaxParser.php';
+//require_once __DIR__ . DIRECTORY_SEPARATOR . 'SyntaxParser.php';
 
 class Parser {
 
@@ -26,9 +26,9 @@ class Parser {
         $this->page = \SimpleHtmlDom\str_get_html($html);
     }
 
-    public function __destruct() {
-        $this->page->clear();
-    }
+//    public function __destruct() {
+//        $this->page->clear();
+//    }
 
     /**
      * Build DOM tree from string
