@@ -92,79 +92,6 @@ class SyntaxParser {
      * @param $plaintext
      * @return null|string
      */
-//    public static function parseLawyer($plaintext) {
-//        $lawyer = null;
-//
-////        preg_match('/Rechtsanwalt(.*)Verfügungen/U', $plaintext, $matches);
-////        if (array_key_exists(1, $matches))
-////            return trim($matches[1]);
-////
-////        preg_match('/Rechtsanw[äa]lt(e|s|in)?(.*)\.\s/U', $plaintext, $matches2);
-////        if (array_key_exists(1, $matches2))
-////            return trim($matches2[2]);
-////
-//        preg_match('/Rechtsanw[äa]lt(e|s|in)?/', $plaintext, $m, PREG_OFFSET_CAPTURE);
-//        if (isset($m) && !empty($m)) {
-//            $lawyerWord = $m[0][0];
-//            $lawyerOffset = $m[0][1] + strlen($m[0][0]);
-//
-//            $contact = [
-//                strpos($plaintext, 'Dr.', $lawyerOffset) + strlen('Dr.'),
-//                strpos($plaintext, 'Prof.', $lawyerOffset) + strlen('Prof.'),
-//                strpos($plaintext, 'Fax', $lawyerOffset),
-//                strpos($plaintext, 'Email', $lawyerOffset),
-//                strpos($plaintext, 'Telefon', $lawyerOffset),
-//                strpos($plaintext, 'Telefax', $lawyerOffset),
-//            ];
-//            $max = max($contact);
-//            if ($max !== false) {
-//                $endPoint = [
-//                    strpos($plaintext, 'bestellt', $max),
-//                    strpos($plaintext, 'Verfügungen', $max),
-//                    strpos($plaintext, '. ', $max),
-//                ];
-//                $min = min(array_filter($endPoint));
-//                $start = $lawyerOffset + strlen($lawyerWord);
-//                return substr($plaintext, $start, $min - $start);
-//            }
-//
-//        }
-//
-//
-//
-//        preg_match('/Rechtsanw[äa]lt(e|s|in)?(.*)(\.\s|Verfügungen|bestellt)/U', $plaintext, $matches2);
-//        if (array_key_exists(2, $matches2))
-//            return trim($matches2[2]);
-//
-//        $searchTip1 = 'Insolvenzverwalter';
-//        $liquidatorOffset = stripos($plaintext, $searchTip1);
-//
-//        if ($liquidatorOffset !== false) {
-//
-//            $searchTip2 = 'Rechtsanwalt';
-//            $lawyerStartOffset = strpos($plaintext, $searchTip2, $liquidatorOffset);
-//
-//            if ($lawyerStartOffset !== false) {
-//                $lawyerStartOffset += strlen($searchTip2);
-//                $lawyerStopOffset = strpos($plaintext, '. ', $lawyerStartOffset + 10);
-//            } else {
-//                $lawyerStartOffset = $liquidatorOffset + strlen($searchTip1);
-//            }
-//
-//            $searchTip3 = 'Verfügungen';
-//            $injunctionsOffset = strpos($plaintext, $searchTip3, $liquidatorOffset);
-//
-//            if ($injunctionsOffset !== false) {
-//                $lawyerStopOffset = $injunctionsOffset;
-//            }
-//
-//            if (isset($lawyerStartOffset, $lawyerStopOffset) && $lawyerStartOffset !== false && $lawyerStopOffset !== false)
-//                $lawyer = trim(substr($plaintext, $lawyerStartOffset, $lawyerStopOffset-$lawyerStartOffset));
-//        }
-//
-//        return $lawyer;
-//    }
-
     public static function parseLawyer($plaintext) {
         preg_match('/Rechtsanw\S*\s/', $plaintext, $m, PREG_OFFSET_CAPTURE);
         if (isset($m) && !empty($m)) {
@@ -188,12 +115,14 @@ class SyntaxParser {
             if ($max == false) {
                 $max = $lawyerOffset;
             }
-            $endPoint = [
+            $end = array_filter([
                 strpos($plaintext, 'bestellt', $max),
                 strpos($plaintext, 'Verfügungen', $max),
-            ];
-            $end = min(array_filter($endPoint));
-            if (!$end) {
+                strpos($plaintext, 'wird gemäß', $max),
+            ]);
+            if (!empty($end)) {
+                $end = min($end);
+            } else {
                 $end = strpos($plaintext, '. ', $max);
             }
             $lawyer = substr($plaintext, $lawyerOffset, $end - $lawyerOffset);
