@@ -51,9 +51,10 @@ class SyntaxParser {
         $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
 
         if (strlen($entity) > strlen($address)) { // Search occurence of "last entity word" (region/city) once again to wide again
-            $addressStop2 = strpos($plaintext, $lastEntityWord, $addressStop) + strlen($lastEntityWord);
-            $address = substr($plaintext, $addressStart, $addressStop2-$addressStart);
-        } elseif ($addressStart > $addressStop) {
+            $addressStop = strpos($plaintext, $lastEntityWord, $addressStop) + strlen($lastEntityWord);
+            $address = substr($plaintext, $addressStart, $addressStop-$addressStart);
+        }
+        if ($addressStart > $addressStop) {
             $address = $entity; // if smth went wrong in parse
         }
 
