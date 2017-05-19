@@ -167,7 +167,6 @@ class SyntaxParser {
     public static function parseLawyer($plaintext) {
         preg_match('/Rechtsanw\S*\s/', $plaintext, $m, PREG_OFFSET_CAPTURE);
         if (isset($m) && !empty($m)) {
-            $lawyerWord = $m[0][0];
             $lawyerOffset = $m[0][1] + strlen($m[0][0]);
 
             $dr = strpos($plaintext, 'Dr.', $lawyerOffset);
