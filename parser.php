@@ -49,12 +49,15 @@ require_once 'autoload.php';
                     <option>HRB</option>
                     <option>HRA</option>
                 </select>
-                <button type="submit" class="btn btn-default">Scrap data</button>
+
+                <?php if (!array_key_exists('parse', $_GET)) : ?>
+                    <button type="submit" class="btn btn-default">Scrap data</button>
+                <?php endif; ?>
             </form>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             <?php if (array_key_exists('parse', $_GET) && $_GET['parse'] == 1) : ?>
-            <h1 class="page-header"><?=$result['title']?></h1>
+            <h1 class="page-header">Data scrape</h1>
             <?php
                 $registerant = (array_key_exists('Registerart', $_GET)) ? $_GET['Registerart'] : null;
                 $controller = new \Controller();

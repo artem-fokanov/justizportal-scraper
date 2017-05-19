@@ -4,7 +4,7 @@ require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRE
 require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Database.php';
 
 $db = new Database();
-$query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
+$query = $db->query('SELECT plaintext FROM article')->fetchAll($db::FETCH_ASSOC);
 ?>
 <table>
     <link rel="stylesheet" href="table.css"/>
@@ -16,12 +16,10 @@ $query = $db->query('SELECT * FROM article')->fetchAll($db::FETCH_ASSOC);
     </thead>
     <tbody>
 
-    <?php foreach ($query as $item) :
-        $a = SyntaxParser::parseLawyer($item['plaintext']);?>
+    <?php foreach ($query as $item) : ?>
     <tr>
-        <td><?=$a?></td>
+        <td><?=SyntaxParser::parseLawyer($item['plaintext'])?></td>
         <td><?=$item['plaintext']?></td>
-<!--        --><?//=$item['plaintext']?><!--<br/><br/><br/>-->
     </tr>
     <?php endforeach; ?>
 
