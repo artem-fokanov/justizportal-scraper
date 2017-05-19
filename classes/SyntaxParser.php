@@ -93,41 +93,48 @@ class SyntaxParser {
      * @return null|string
      */
     public static function parseLawyer($plaintext) {
-        preg_match('/Rechtsanw\S*\s/', $plaintext, $m, PREG_OFFSET_CAPTURE);
-        if (isset($m) && !empty($m)) {
-            $lawyerOffset = $m[0][1] + strlen($m[0][0]);
+//        preg_match('/Rechtsanw\S*\s/', $plaintext, $m, PREG_OFFSET_CAPTURE);
+        $splite = preg_split('/Rechtsanw\S*\s/', $plaintext, -1, PREG_SPLIT_OFFSET_CAPTURE);
+        array_shift($splite);
+        if (count($splite)) {
+            $lawyer = null;
+            foreach ($splite as $substr) {
+                $lawyerOffset = $substr[1];
 
-            $dr = strpos($plaintext, 'Dr.', $lawyerOffset);
-            $prof = strpos($plaintext, 'Prof.', $lawyerOffset);
-            $fax = strpos($plaintext, 'Fax', $lawyerOffset);
-            $email = strpos($plaintext, 'Email', $lawyerOffset);
-            $phone = strpos($plaintext, 'Telefon', $lawyerOffset);
-            $telefax = strpos($plaintext, 'Telefax', $lawyerOffset);
-            $contact = [
-                ($dr !== false) ? $dr + strlen('Dr.') : false,
-                ($prof !== false) ? $prof + strlen('Prof.') : false,
-                ($fax - $lawyerOffset < 300) ? $fax : false,
-                ($email - $lawyerOffset < 300) ? $email : false,
-                ($phone - $lawyerOffset < 300) ? $phone : false,
-                ($telefax - $lawyerOffset < 300) ? $telefax : false,
-            ];
-            $max = max($contact);
-            if ($max == false) {
-                $max = $lawyerOffset;
+                $dr = strpos($plaintext, 'Dr.', $lawyerOffset);
+                $prof = strpos($plaintext, 'Prof.', $lawyerOffset);
+                $fax = strpos($plaintext, 'Fax', $lawyerOffset);
+                $email = strpos($plaintext, 'Email', $lawyerOffset);
+                $phone = strpos($plaintext, 'Telefon', $lawyerOffset);
+                $telefax = strpos($plaintext, 'Telefax', $lawyerOffset);
+                $contact = [
+                    ($dr !== false) ? $dr + strlen('Dr.') : false,
+                    ($prof !== false) ? $prof + strlen('Prof.') : false,
+                    ($fax - $lawyerOffset < 300) ? $fax : false,
+                    ($email - $lawyerOffset < 300) ? $email : false,
+                    ($phone - $lawyerOffset < 300) ? $phone : false,
+                    ($telefax - $lawyerOffset < 300) ? $telefax : false,
+                ];
+                $max = max($contact);
+                if ($max == false) {
+                    $max = $lawyerOffset;
+                }
+                $end = array_filter([
+                    strpos($plaintext, 'bestellt', $max),
+                    strpos($plaintext, 'Verfügungen', $max),
+                    strpos($plaintext, 'wird gemäß', $max),
+                    strpos($plaintext, 'auf Eröffnung', $max),
+                    strpos($plaintext, 'Geschäftszweig', $max),
+                    strpos($plaintext, 'Uhr', $max),
+                ]);
+                if (!empty($end) && (min($end) - $max < 100)) {
+                    $end = min($end);
+                } else {
+                    $end = strpos($plaintext, '. ', $max);
+                }
+                $lawyer .= substr($plaintext, $lawyerOffset, $end - $lawyerOffset) . ' | ';
             }
-            $end = array_filter([
-                strpos($plaintext, 'bestellt', $max),
-                strpos($plaintext, 'Verfügungen', $max),
-                strpos($plaintext, 'wird gemäß', $max),
-            ]);
-            if (!empty($end)) {
-                $end = min($end);
-            } else {
-                $end = strpos($plaintext, '. ', $max);
-            }
-            $lawyer = substr($plaintext, $lawyerOffset, $end - $lawyerOffset);
             return $lawyer;
-
         }
         return null;
     }
