@@ -48,7 +48,8 @@ class Request {
             $link = $link . $glue . $params;
         }
 
-        $ch = $this->descriptor;
+//        $ch = $this->descriptor;
+        $ch = curl_init();
         curl_reset($ch);
 
         curl_setopt($ch, CURLOPT_URL, $link);
@@ -60,6 +61,8 @@ class Request {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // output to file
 
         $response = curl_exec($ch);
+
+        curl_close($ch);
 
         return $response;
     }
