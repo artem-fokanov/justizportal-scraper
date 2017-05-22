@@ -88,12 +88,13 @@ class Parser {
 
         $lastPage = 0;
         $lastPageButton = '>|';
+        if ($resultBlock->find('center', 0)) {
+            foreach ($resultBlock->find('center', 0)->find('a[href]') as $page) {
+                if ($page->plaintext == $lastPageButton) {
+                    preg_match('/&page=(\d+)/', $page->attr['href'], $matches);
 
-        foreach ($resultBlock->find('center', 0)->find('a[href]') as $page) {
-            if ($page->plaintext == $lastPageButton) {
-                preg_match('/&page=(\d+)/', $page->attr['href'], $matches);
-
-                $lastPage = array_key_exists(1, $matches) ? intval($matches[1]) : 1;
+                    $lastPage = array_key_exists(1, $matches) ? intval($matches[1]) : 1;
+                }
             }
         }
 
@@ -121,7 +122,7 @@ class Parser {
             $text['date'] = $date;
 
             $link = $item->children(0)->href;
-            echo "Attaching link: ", $link, PHP_EOL;
+//            echo "Attaching link: ", $link, PHP_EOL;
             // extracting link;
             $link = str_replace('javascript:NeuFenster(\'', '', $link);
             $link = substr($link, 0, strlen($link)-2);

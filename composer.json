@@ -2,6 +2,9 @@
     "name": "artem-fokanov/justizportal-scraper",
     "type": "project",
     "require": {
+        "php": ">=5.4.0",
+        "ext-pdo": "*",
+        "ext-curl": "*",
         "mgargano/simplehtmldom": "^1.5"
     },
     "authors": [
