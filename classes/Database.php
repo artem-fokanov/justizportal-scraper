@@ -18,8 +18,10 @@ class Database extends \PDO {
         'link',
     ];
 
+    private $csv;
+
     public function __construct() {
-        $dirname = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'db';
+        $dirname = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'db';
         if (!is_dir($dirname))
             mkdir($dirname);
 
@@ -29,6 +31,12 @@ class Database extends \PDO {
         parent::__construct($dsn);
 
         $this->createTables();
+    }
+
+    public function __destruct()
+    {
+        if (is_resource($this->csv))
+            fclose($this->csv);
     }
 
     public function createTables() {
@@ -113,5 +121,24 @@ SQL
         $statement->execute();
         $result = $statement->fetchColumn();
         return intval($result);
+    }
+
+    public function writeToCsv($data) {
+        if (is_null($this->csv)) {
+            $file = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'data.csv';
+
+            if (!file_exists($file)) {
+                $header = ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext'];
+            }
+
+            $this->csv = fopen($file, 'a');
+
+            // Write headers to file if it wasn't already exist
+            if (isset($header)) {
+                fputcsv($this->csv, $header);
+            }
+        }
+
+        fputcsv($this->csv, $data);
     }
 }

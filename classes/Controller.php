@@ -5,8 +5,6 @@ class Controller {
     public function parser($registerant) {
         $startTime = microtime(true);
 
-//        $registerant = (array_key_exists('Registerart', $_GET)) ? $_GET['Registerart'] : null;
-
         //REQUEST
         $queryString = '/cgi-bin/bl_suche.pl';
         $rq = new Request();
@@ -42,11 +40,13 @@ class Controller {
         echo PHP_EOL;
 
         //STORE DATA
-        $fp = fopen('db/data.csv', 'w');
-        fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
         try {
             $db = new Database();
-//            $db->beginTransaction();
+
+
+//            $fp = fopen(dirname(__DIR__).'/db/data.csv', 'w');
+//            fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
+
             $iteration = 1;
             foreach ($links as $link => $data) {
                 $data = array_merge($data, ['link' => $link]);
@@ -92,7 +92,7 @@ class Controller {
                         echo "-Article table- ";
                         $db->commit();
 
-                        fputcsv($fp, [$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
+                        $db->writeToCsv([$data['id'], $data['entity_address'], $data['court'], $data['lawyer'], $data['is_temporarily'], $data['plaintext']]);
                         echo "-data.csv- ";
                     } else {
                         echo "-cant insert. skipping-";
@@ -104,18 +104,17 @@ class Controller {
                 echo PHP_EOL;
                 $iteration++;
             }
-//            $db->commit();
         }
         catch (Exception $e) {
             $db->rollBack();
         }
 
-        fclose($fp);
+        unset($db);
         $rq->close();
 
         $endTime = microtime(true);
 
-        echo ($endTime - $startTime), ' seconds', PHP_EOL;
+        echo 'Ended in ',($endTime - $startTime), ' seconds', PHP_EOL;
     }
 
     public function dashboard() {
