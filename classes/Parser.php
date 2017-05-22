@@ -121,11 +121,13 @@ class Parser {
             $text['date'] = $date;
 
             $link = $item->children(0)->href;
+            echo "Attaching link: ", $link, PHP_EOL;
             // extracting link;
             $link = str_replace('javascript:NeuFenster(\'', '', $link);
             $link = substr($link, 0, strlen($link)-2);
             // extract session id for further search results
             $link = $this->sessionIdFromLink($link);
+            $text['session'] = $this->getSessionId();
 
             $links[$link] = $text;
         }

@@ -24,6 +24,7 @@ class Controller {
         echo "Total links detected: ", $parser->totalLinks(), PHP_EOL;
         $links = $parser->parseLinks();
         $sessionID = $parser->getSessionId();
+        echo "Session ID: ", $sessionID, PHP_EOL;
 
         while ($page < $pages) {
             $html = $rq->send($queryString,
@@ -38,6 +39,8 @@ class Controller {
         }
 
         unset ($html, $pages, $page, $queryString);
+
+        echo PHP_EOL;
 
         //STORE DATA
         $fp = fopen('db/data.csv', 'w');
