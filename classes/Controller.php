@@ -24,7 +24,6 @@ class Controller {
         echo "Total links detected: ", $parser->totalLinks(), PHP_EOL;
         $links = $parser->parseLinks();
         $sessionID = $parser->getSessionId();
-        echo "Session ID: ", $sessionID, PHP_EOL;
 
         while ($page < $pages) {
             $html = $rq->send($queryString,

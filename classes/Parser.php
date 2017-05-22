@@ -145,6 +145,7 @@ class Parser {
 
         if (is_null($this->sessionId)) {
             $this->sessionId = array_key_exists(1, $matches) ? $matches[1] : null;
+            echo "Session ID: ", $this->getSessionId(), PHP_EOL;
         }
 
         return str_replace($matches[0], '', $link);
