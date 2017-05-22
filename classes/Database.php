@@ -20,6 +20,8 @@ class Database extends \PDO {
 
     private $csv;
 
+    private $csvTemp;
+
     public function __construct() {
         $dirname = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'db';
         if (!is_dir($dirname))
@@ -37,6 +39,9 @@ class Database extends \PDO {
     {
         if (is_resource($this->csv))
             fclose($this->csv);
+
+        if (is_resource($this->csvTemp))
+            fclose($this->csvTemp);
     }
 
     public function createTables() {
@@ -124,21 +129,32 @@ SQL
     }
 
     public function writeToCsv($data) {
+        $header = ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext'];
+        $dirname = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR;
+
         if (is_null($this->csv)) {
-            $file = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'data.csv';
+            $file = $dirname . 'data.csv';
 
             if (!file_exists($file)) {
-                $header = ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext'];
+                $writeHeader = true;
             }
 
             $this->csv = fopen($file, 'a');
 
             // Write headers to file if it wasn't already exist
-            if (isset($header)) {
+            if (isset($writeHeader)) {
                 fputcsv($this->csv, $header);
             }
         }
 
+        if (is_null($this->csvTemp)) {
+            $tempFile = $dirname . 'data-'.date('Y-m-d-U').'.csv';
+
+            $this->csvTemp = fopen($tempFile, 'w');
+            fputcsv($this->csv, $header);
+        }
+
         fputcsv($this->csv, $data);
+        fputcsv($this->csvTemp, $data);
     }
 }

@@ -43,10 +43,6 @@ class Controller {
         try {
             $db = new Database();
 
-
-//            $fp = fopen(dirname(__DIR__).'/db/data.csv', 'w');
-//            fputcsv($fp, ['id', 'entity_address', 'court', 'lawyer','is_temporarily', 'plaintext']);
-
             $iteration = 1;
             foreach ($links as $link => $data) {
                 $data = array_merge($data, ['link' => $link]);
